@@ -33,7 +33,7 @@ The visualizer is designed to improve on common flooring-visualizer adoption blo
 
 - Vercel static site plus serverless function
 - `OPENAI_API_KEY`
-- `OPENAI_IMAGE_MODEL`, default `gpt-image-2`
+- `OPENAI_IMAGE_MODEL`, default `gpt-image-1.5`
 - optional `LEAD_WEBHOOK_URL` for quote/CRM handoff
 
 ## Production Gates
