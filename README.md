@@ -1,53 +1,43 @@
 # Floor VIZUALIZER
 
-Customer-friendly acrylic flake and metallic epoxy floor visualizer for Strategic Minds / XPS-style flooring sales workflows.
+A customer-friendly AI guided acrylic flake and metallic epoxy floor visualizer.
 
-## Current Build Package
+## What The App Does
 
-A runnable scaffold has been prepared with:
+1. Customer uploads a photo of their floor or room.
+2. The app asks OpenAI vision to identify the visible floor area.
+3. The customer chooses or saves a favorite acrylic flake or metallic epoxy finish.
+4. The app previews that finish inside the detected floor area.
+5. The customer can click **Do it all for me** to detect the floor and generate the final OpenAI image edit.
+6. The OpenAI image edit changes only the masked floor area while preserving walls, furniture, baseboards, lighting, shadows, and perspective.
 
-- Customer photo upload
-- Polygon and brush-based floor masking
-- Acrylic flake and metallic epoxy finish previews
-- PNG preview download
-- `/api/render-floor` OpenAI image-edit endpoint contract
-- Vercel deployment plan
-- QA and claim-control notes
+## Routes
+
+- `/visualizer` or `/`: customer visualizer app
+- `/api/detect-floor`: OpenAI vision floor polygon detection
+- `/api/render-floor`: OpenAI image-edit floor replacement
+
+## Environment Variables
+
+```bash
+OPENAI_API_KEY=
+OPENAI_VISION_MODEL=gpt-5.5
+OPENAI_IMAGE_MODEL=gpt-image-1.5
+MAX_IMAGE_BYTES=12000000
+LEAD_WEBHOOK_URL=
+```
+
+## Deploy
+
+Deploy this repo to Vercel, add the environment variables, then open `/visualizer`.
+
+## Production Notes
+
+- The local browser preview is a sales visualization, not an installation guarantee.
+- AI output should be labeled as a visualization.
+- Confirm real product names, color blends, and finish availability before customer launch.
+- Add CRM or quote-webhook handoff after privacy, consent, and storage rules are approved.
+- Review AI-generated renders before issuing final quotes.
 
 Canonical Drive workspace:
-
 https://drive.google.com/drive/folders/1HOOenEyC7oSTdWHvjKvaMcazqNxtoyyb
-
-## Product Direction
-
-The visualizer is designed to improve on common flooring-visualizer adoption blockers:
-
-- simple upload-first customer workflow
-- guided floor masking rather than technical editing
-- instant browser preview before AI rendering
-- OpenAI image editing only for the masked floor area
-- safe customer-facing language that avoids guaranteed-result claims
-- clean handoff to quote/CRM workflows
-
-## Required Runtime Environment
-
-- Vercel static site plus serverless function
-- `OPENAI_API_KEY`
-- `OPENAI_IMAGE_MODEL`, default `gpt-image-1.5`
-- optional `LEAD_WEBHOOK_URL` for quote/CRM handoff
-
-## Production Gates
-
-Before live customer use:
-
-- confirm product finish names and inventory
-- add photo consent and privacy copy to the final intake flow
-- decide whether uploaded photos are stored or returned only in-session
-- add rate limits and abuse monitoring around AI rendering
-- verify AI outputs are reviewed before quote finalization
-
-## Sync Rule
-
-- Google Drive remains the planning and documentation control plane.
-- GitHub remains the implementation mirror.
-- Vercel and AI Gateway/OpenAI provisioning must follow the approved Drive/GitHub blueprint.
