@@ -1,43 +1,41 @@
-# Floor VIZUALIZER
+# Vizual-X
 
-A customer-friendly AI guided acrylic flake and metallic epoxy floor visualizer.
+Vizual-X is a Next.js floor visualizer built for Vercel. The AI assistant is named Vizzy.
 
-## What The App Does
+## Why Next.js
 
-1. Customer uploads a photo of their floor or room.
-2. The app asks OpenAI vision to identify the visible floor area.
-3. The customer chooses or saves a favorite acrylic flake or metallic epoxy finish.
-4. The app previews that finish inside the detected floor area.
-5. The customer can click **Do it all for me** to detect the floor and generate the final OpenAI image edit.
-6. The OpenAI image edit changes only the masked floor area while preserving walls, furniture, baseboards, lighting, shadows, and perspective.
+Next.js is the best choice for this launch because Vercel deploys it directly, the frontend can feel like a polished app, and API routes keep OpenAI keys secure on the server.
+
+## Vizzy Workflow
+
+Example command:
+
+> Hey Vizzy, outline my floor, search for white swirl epoxy floors, show me three options, and use option one.
+
+Vizzy then accepts voice or text, searches for style ideas, shows three rectangular options, detects the floor in the uploaded photo, renders the chosen style onto the masked floor, plays a completion chime, and lets the user download the preview.
 
 ## Routes
 
-- `/visualizer` or `/`: customer visualizer app
-- `/api/detect-floor`: OpenAI vision floor polygon detection
-- `/api/render-floor`: OpenAI image-edit floor replacement
+- `/`: Vizual-X app
+- `/api/style-search`: Vizzy style discovery with OpenAI web search when configured
+- `/api/detect-floor`: AI floor outline detection
+- `/api/render-floor`: OpenAI image edit floor replacement
 
 ## Environment Variables
 
 ```bash
 OPENAI_API_KEY=
 OPENAI_VISION_MODEL=gpt-5.5
+OPENAI_SEARCH_MODEL=gpt-5.5
 OPENAI_IMAGE_MODEL=gpt-image-1.5
 MAX_IMAGE_BYTES=12000000
-LEAD_WEBHOOK_URL=
 ```
 
-## Deploy
+## Launch On Vercel
 
-Deploy this repo to Vercel, add the environment variables, then open `/visualizer`.
+1. Import `Strategic-Minds/VIZUALIZER` into Vercel.
+2. Add the environment variables above.
+3. Deploy from `main`.
+4. Open the production URL.
 
-## Production Notes
-
-- The local browser preview is a sales visualization, not an installation guarantee.
-- AI output should be labeled as a visualization.
-- Confirm real product names, color blends, and finish availability before customer launch.
-- Add CRM or quote-webhook handoff after privacy, consent, and storage rules are approved.
-- Review AI-generated renders before issuing final quotes.
-
-Canonical Drive workspace:
-https://drive.google.com/drive/folders/1HOOenEyC7oSTdWHvjKvaMcazqNxtoyyb
+Voice input uses the browser Speech Recognition API. If a browser does not support voice input, text commands still work. AI output is a visualization, not an installation guarantee.
