@@ -41,7 +41,7 @@ export default function FloorVisionPro() {
     "stained-concrete": STAINED_BLENDS,
     "solid-color-epoxy": FLAKE_BLENDS.filter(b=>b.colorFamily.includes("White")||b.colorFamily.includes("Grey")).slice(0,6),
     "quartz-broadcast": FLAKE_BLENDS.filter(b=>b.colorFamily.includes("Neutral")||b.colorFamily.includes("Grey")).slice(0,6),
-  }[category] || FLAKE_BLENDS;
+  || FLAKE_BLENDS;
 
   const filteredBlends = categoryBlends.filter(b => {
     const matchSearch = !search || b.name.toLowerCase().includes(search.toLowerCase()) || b.colorFamily.some(c=>c.toLowerCase().includes(search.toLowerCase()));
@@ -137,7 +137,7 @@ export default function FloorVisionPro() {
               <p style={{color:"rgba(255,255,255,0.5)",marginBottom:28,fontSize:15}}>Choose a category to see your options. Not sure? Start with Epoxy Flake.</p>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12}}>
                 {(["epoxy-flake","metallic-epoxy","polished-concrete","stained-concrete"] as FinishCategory[]).map(cat=>{
-                  const icons = {"epoxy-flake":"🎨","metallic-epoxy":"✨","polished-concrete":"💎","stained-concrete":"🌊"};
+                  const icons: Record<string,string> = {"epoxy-flake":"🎨","metallic-epoxy":"✨","polished-concrete":"💎","stained-concrete":"🌊","solid-color-epoxy":"⬛","quartz-broadcast":"🪨"};
                   const selected = category===cat;
                   return (
                     <button key={cat} onClick={()=>{setCategory(cat);setSelectedBlend(null);}}
