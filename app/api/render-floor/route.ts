@@ -1,4 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-export const runtime='nodejs';export const maxDuration=60;const MAX=12_000_000;
-function blob(d:string){const m=/^data:(?<mime>[\w/+.-]+);base64,(?<data>.+)$/u.exec(d||'');if(!m?.groups)throw new Error('Expected a base64 data URL.');const buffer=Buffer.from(m.groups.data,'base64');return{mime:m.groups.mime,buffer,size:buffer.byteLength}}
-export async function POST(req:NextRequest){if(!process.env.OPENAI_API_KEY)return NextResponse.json({error:'OpenAI rendering is not configured yet. Add OPENAI_API_KEY in Vercel.'},{status:503});try{const body=await req.json(),image=blob(body.imageDataUrl),mask=blob(body.maskDataUrl);if(image.size>Number(process.env.MAX_IMAGE_BYTES||MAX)||mask.size>Number(process.env.MAX_IMAGE_BYTES||MAX))return NextResponse.json({error:'Image is too large.'},{status:413});const style=body.style?.prompt||'',finish=body.finish?.prompt||'Replace only the masked floor with a glossy white swirl metallic epoxy floor.';const prompt=[finish,style,'Edit only the masked floor area. Preserve walls, cabinets, furniture, baseboards, shadows, lighting, and camera perspective. Make it photorealistic. Do not add people, logos, text, watermarks, or unrelated objects.'].join(' ');const form=new FormData();form.append('model',process.env.OPENAI_IMAGE_MODEL||'gpt-image-1.5');form.append('prompt',prompt);form.append('size','1536x1024');form.append('image[]',new Blob([image.buffer],{type:image.mime}),'customer-floor.png');form.append('mask',new Blob([mask.buffer],{type:mask.mime}),'floor-mask.png');const r=await fetch('https://api.openai.com/v1/images/edits',{method:'POST',headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`},body:form});const j=await r.json();if(!r.ok)return NextResponse.json({error:j.error?.message||'OpenAI image edit failed.'},{status:r.status});const b64=j.data?.[0]?.b64_json,url=j.data?.[0]?.url;return NextResponse.json({image:b64?`data:image/png;base64,${b64}`:url,model:process.env.OPENAI_IMAGE_MODEL||'gpt-image-1.5'})}catch(e:any){return NextResponse.json({error:e.message||'Invalid render request.'},{status:400})}}
+export const runtime='nodejs';
+export const maxDuration=60;
+const MAX=12_000_000;
+
+function blob(d: string){
+  // Use non-named capture group (ES5 compatible)
+  const m = /^data:([\w/+.\-]+);base64,(.+)$/.exec(d||'');
+  if(!m) return {mime:'image/png',data:''};
+  return {mime:m[1],data:m[2]};
+}
+
+export async function POST(req: NextRequest){
+  if(!process.env.OPENAI_API_KEY) return NextResponse.json({error:'OpenAI key not configured. Add OPENAI_API_KEY to Vercel environment variables.'},{status:501});
+  try {
+    const body = await req.json();
+    const {imageDataUrl,maskDataUrl,finish,style} = body;
+    if(!imageDataUrl||!maskDataUrl) return NextResponse.json({error:'Missing imageDataUrl or maskDataUrl'},{status:400});
+    
+    const {data:imgData,mime:imgMime} = blob(imageDataUrl);
+    if(imgData.length > MAX) return NextResponse.json({error:'Image too large (max 12MB)'},{status:413});
+
+    const prompt = finish?.prompt || style?.prompt || 'Replace the floor with a beautiful epoxy coating, preserving room perspective, walls, and furniture.';
+    
+    const resp = await fetch('https://api.openai.com/v1/images/edits',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${process.env.OPENAI_API_KEY}`},
+      body: (() => {
+        const fd = new FormData();
+        const imgBytes = Buffer.from(imgData,'base64');
+        const maskBytes = Buffer.from(blob(maskDataUrl).data,'base64');
+        fd.append('model','gpt-image-1');
+        fd.append('prompt',prompt);
+        fd.append('n','1');
+        fd.append('size','1024x1024');
+        fd.append('image',new Blob([imgBytes],{type:imgMime}),'image.png');
+        fd.append('mask',new Blob([maskBytes],{type:'image/png'}),'mask.png');
+        return fd;
+      })()
+    });
+
+    if(!resp.ok){
+      const err = await resp.json();
+      return NextResponse.json({error:err.error?.message||'OpenAI error'},{status:resp.status});
+    }
+
+    const result = await resp.json();
+    const b64 = result.data?.[0]?.b64_json;
+    if(!b64) return NextResponse.json({error:'No image in response'},{status:500});
+    
+    return NextResponse.json({image:`data:image/png;base64,${b64}`});
+  } catch(e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({error:msg},{status:500});
+  }
+}
