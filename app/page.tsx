@@ -266,9 +266,11 @@ function useSpeech(onResult: (text: string) => void) {
   const recRef = useRef<unknown>(null);
 
   const start = useCallback(() => {
-    const SpeechRecognition = (window as Record<string,unknown>).SpeechRecognition || (window as Record<string,unknown>).webkitSpeechRecognition;
+    const w = window as unknown as Record<string,unknown>;
+    const SpeechRecognition = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (!SpeechRecognition) return;
-    const rec = new (SpeechRecognition as new()=>{ lang:string; interimResults:boolean; onstart:()=>void; onend:()=>void; onresult:(e:{results:{0:{0:{transcript:string}}}[]})=>void; start:()=>void })();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rec = new (SpeechRecognition as any)();
     rec.lang = "en-US"; rec.interimResults = false;
     rec.onstart = () => setListening(true);
     rec.onend = () => setListening(false);
