@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { useState, useRef, useEffect, useCallback } from "react";
 
 type Cat = "epoxy-flake"|"metallic-epoxy"|"polished-concrete"|"stained-concrete";
@@ -704,7 +705,7 @@ export default function FloorVisionPro() {
               <p style={{color:"rgba(255,255,255,0.4)",marginBottom:24,fontSize:14}}>Not sure? Epoxy Flake is our most popular — 58 blends, 3 chip sizes.</p>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:10}}>
                 {([["epoxy-flake","Epoxy Flake","flake"],["metallic-epoxy","Metallic Epoxy","metallic"],["polished-concrete","Polished Concrete","polished"],["stained-concrete","Stained Concrete","stained"]] as [Cat,string,string][]).map(([id,label,key])=>{
-                  const IconComp = ({flake:<Icon.Flake/>,metallic:<Icon.Metallic/>,polished:<Icon.Polished/>,stained:<Icon.Stained/>} as Record<string,JSX.Element>)[key];
+                  const IconComp = ({flake:<Icon.Flake/>,metallic:<Icon.Metallic/>,polished:<Icon.Polished/>,stained:<Icon.Stained/>} as Record<string,React.ReactNode>)[key];
                   const sel=category===id;
                   return (
                     <button key={id} onPointerDown={()=>setCat(id)}
@@ -786,7 +787,7 @@ export default function FloorVisionPro() {
                 <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                   <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search blends..."
                     style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:7,padding:"9px 13px",color:"#fff",fontSize:13,width:160,outline:"none"}}/>
-                  {category==="epoxy-flake" && (["116","18","40"] as const).map(sz=>(
+                  {category==="epoxy-flake" && (["116","18","40"] as Array<"116"|"18"|"40">).map(sz=>(
                     <button key={sz} onPointerDown={()=>setChip(sz)}
                       style={{background:chipSize===sz?"#F5C518":"rgba(255,255,255,0.05)",color:chipSize===sz?"#000":"#fff",border:"1px solid rgba(255,255,255,0.1)",padding:"7px 10px",borderRadius:6,fontSize:11,fontWeight:800,cursor:"pointer"}}>
                       {sz==="116"?'1/16"':sz==="18"?'1/8"':'1/4"'}
@@ -868,7 +869,7 @@ export default function FloorVisionPro() {
                 </div>
               )}
               <div style={{display:"grid",gap:10}}>
-                {([["name","Full Name *","text"],["phone","Phone / WhatsApp *","tel"],["email","Email Address *","email"],["address","Property Address","text"],["sqft","Square Footage","number"]] as const).map(([field,label,type])=>(
+                {([["name","Full Name *","text"],["phone","Phone / WhatsApp *","tel"],["email","Email Address *","email"],["address","Property Address","text"],["sqft","Square Footage","number"]] as [string,string,string][]).map(([field,label,type])=>(
                   <div key={field}>
                     <label style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.45)",marginBottom:4,display:"block"}}>{label}</label>
                     <input type={type} value={(form as Record<string,string>)[field]} onChange={e=>setForm({...form,[field]:e.target.value})}
